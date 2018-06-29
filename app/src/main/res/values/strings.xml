@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">p4sqr</string>
+    <string name="places_api_key">AIzaSyD2QSy0wXedfSvQHj4mccxgyv8G7UIkJcM</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
