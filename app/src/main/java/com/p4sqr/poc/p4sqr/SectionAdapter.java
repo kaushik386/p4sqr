@@ -80,6 +80,7 @@ public class SectionAdapter extends RecyclerView.Adapter<SectionAdapter.SectionH
             if(buttonView.isChecked()) {
                 mClickEvent.sendBack(getAdapterPosition());
             }
+
         }
     }
 }

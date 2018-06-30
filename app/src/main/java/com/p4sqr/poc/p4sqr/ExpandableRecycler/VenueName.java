@@ -1,15 +1,12 @@
 package com.p4sqr.poc.p4sqr.ExpandableRecycler;
 
-import com.bignerdranch.expandablerecyclerview.model.Parent;
 
-import java.util.List;
 
-public class VenueName implements Parent<VenueDetail> {
+public class VenueName  {
 
     private String mName;
     private  int distance;
     private VenueDetail mVenueDetails;
-    private List<VenueDetail> mVenueDetaillist;
 
 
     public VenueName(String mName,  VenueDetail mVenueDetails) {
@@ -47,13 +44,5 @@ public class VenueName implements Parent<VenueDetail> {
         return mName;
     }
 
-    @Override
-    public List<VenueDetail> getChildList() {
-        return mVenueDetaillist;
-    }
 
-    @Override
-    public boolean isInitiallyExpanded() {
-        return false;
-    }
 }

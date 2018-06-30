@@ -4,18 +4,31 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/location"
-        android:theme="@style/PrimaryFlatButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Select Location" />
+
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvsection"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/location"
+        android:theme="@style/PrimaryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="Select Location" />
+
+
+    <Button
+        android:id="@+id/search"
+        android:theme="@style/PrimaryButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="search"
+        android:visibility="gone"
+        />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/venue_rv"

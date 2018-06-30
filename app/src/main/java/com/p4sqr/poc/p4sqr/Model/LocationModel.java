@@ -1,6 +1,5 @@
 package com.p4sqr.poc.p4sqr.Model;
 
-import com.google.gson.annotations.SerializedName;
 
 public class LocationModel {
 

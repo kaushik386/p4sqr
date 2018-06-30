@@ -33,7 +33,6 @@ public class DialogLocationFragment extends DialogFragment {
     Button mDetectCurrentLoca;
     Button mSearchButton;
     EditText mInputText;
-    ProgressDialog progressDoalog;
     private PassBackToMainActivity mCallBack;
     private FusedLocationProviderClient mFusedLocationClient;
     private LocationRequest locationRequest;
@@ -47,7 +46,12 @@ public class DialogLocationFragment extends DialogFragment {
             case REQUEST_CODE: {
                 if (grantResults.length > 0) {
                     if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
+                            if(mFusedLocationClient==null)
+                        {
+                        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(getActivity());
+                        buildLocationRequest();
+                        buildLocationCallBack();
+                        }
                     } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
                     }
                 }
@@ -88,8 +92,6 @@ public class DialogLocationFragment extends DialogFragment {
             buildLocationRequest();
             buildLocationCallBack();
         }
-        progressDoalog = new ProgressDialog(getActivity());
-        progressDoalog.setMessage("Loading....");
 
         mDetectCurrentLoca.setOnClickListener(new View.OnClickListener() {
             @Override

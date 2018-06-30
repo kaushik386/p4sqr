@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,32 +14,43 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 
-import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenueAdapter;
-import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenueDetail;
 import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenueName;
 import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenuePCAdapter;
 import com.p4sqr.poc.p4sqr.Model.SectionModel;
-import com.p4sqr.poc.p4sqr.Model.VenueModel;
 import com.p4sqr.poc.p4sqr.Services.Explore4Sqr;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
-import butterknife.BindView;
 
 public class ExploreFragment extends Fragment implements SectionAdapter.ClickEvent {
 
 
     Button mLocation;
+    Button mSearch;
     RecyclerView mRVSection;
     RecyclerView mVenueRV;
     List<SectionModel>  mSection ;
-    private List<VenueName> mVenueName;
     OnLocationButtonListner mCallBack;
+    private List<VenueName> mVenueName;
     private SectionAdapter mSectionAdapter;
+    private String searchLocation="";
+    private String section ="";
+    private VenuePCAdapter venuePCAdapter;
+
+    public void setLocation(String string)
+    {
+        if(!string.equals("")) {
+
+            searchLocation = string;
+            mLocation.setText("Change Location");
+//            mLocation.setScrollBarStyle(getActivity);
+            if(!section.equals(""))
+            {
+                mSearch.setVisibility(View.VISIBLE);
+            }
+        }
+    }
 
  void setSectionModel()
         {
@@ -48,9 +58,33 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
             String[] string = {"Food", "Drinks", "Coffee", "Shops", "Arts", "Outdoors", "Sights", "Trending" } ;
             for(String temp:string)
             {
-               SectionModel sectionModel= new SectionModel(temp,false);
+               SectionModel sectionModel= new SectionModel(temp.toUpperCase(),false);
                 mSection.add(sectionModel);
             }
+        }
+
+        void searchButtonClicked()
+        {
+            if(mSearch.getText().equals("Reset"))
+            {
+                mSearch.setText("Search");
+                setSectionModel();
+                mSectionAdapter.swap(mSection);
+                mLocation.setText("Select Location");
+                venuePCAdapter.swap(new ArrayList<VenueName>());
+                mSearch.setVisibility(View.GONE);
+                searchLocation="";
+                section="";
+
+            }
+            else {
+                if (!searchLocation.equals("") && !section.equals("")) {
+                    new Explore4SQR().execute(searchLocation, section.toLowerCase());
+                    mSearch.setText("Reset");
+
+                }
+            }
+
         }
 
     @Override
@@ -58,10 +92,10 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
      setSectionModel();
      mSection.get(adapterPosition).setChecked(true);
      mSectionAdapter.swap(mSection);
-    }
-
-    public interface OnLocationButtonListner {
-        public void callLocationDialog();
+     section = mSection.get(adapterPosition).getmName();
+     if(!searchLocation.equals("")) {
+         mSearch.setVisibility(View.VISIBLE);
+     }
     }
 
     @Override
@@ -83,14 +117,21 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
 
         View view = inflater.inflate(R.layout.fragment_explore,container,false);
         mLocation = view.findViewById(R.id.location);
+        mSearch = view.findViewById(R.id.search);
         mRVSection = view.findViewById(R.id.rvsection);
         mVenueRV = view.findViewById(R.id.venue_rv);
         setSectionRV();
         mLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//        mCallBack.callLocationDialog();
-                new Explore4SQR().execute("13,77.59");
+        mCallBack.callLocationDialog();
+
+            }
+        });
+        mSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchButtonClicked();
             }
         });
 
@@ -106,11 +147,15 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
         mRVSection.setAdapter(mSectionAdapter);
     }
 
+     interface OnLocationButtonListner {
+         void callLocationDialog();
+    }
+
     class Explore4SQR extends AsyncTask<String,Void,List<VenueName>>
     {
         @Override
         protected List<VenueName> doInBackground(String... strings) {
-            return new Explore4Sqr().fetchItems(strings[0]);
+            return new Explore4Sqr().getExploreResult(strings[0],strings[1]);
         }
 
         @Override
@@ -118,7 +163,8 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
            mVenueName = venueName;
             mVenueRV.setLayoutManager(new LinearLayoutManager(getContext()));
             mVenueRV.addItemDecoration(new DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL));
-            mVenueRV.setAdapter(new VenuePCAdapter(getContext(),venueName));
+            venuePCAdapter = new VenuePCAdapter(getContext(),venueName);
+            mVenueRV.setAdapter(venuePCAdapter);
 
         }
     }

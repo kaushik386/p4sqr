@@ -3,10 +3,8 @@ package com.p4sqr.poc.p4sqr.Services;
 import android.net.Uri;
 import android.util.Log;
 
-import com.google.gson.stream.JsonWriter;
 import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenueDetail;
 import com.p4sqr.poc.p4sqr.ExpandableRecycler.VenueName;
-import com.p4sqr.poc.p4sqr.Model.VenueModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,12 +23,11 @@ public class Explore4Sqr {
     private static final String TAG = "explore4sqr";
     private static final String CLIENT_SECRET = "LELVVTEIZKORS3TOTQX3HPZ2K444MBARDJQWWJ0VXKSG3GER";
     private static final String CLIENT_ID = "XJ3P55MU225A20H33YQ0XXOVHHR0FHGLTLBQBKVATEYDSNY0";
-    private List<VenueName> mVenueName =new ArrayList<>();
+    private List<VenueName> mVenueNameExplore = new ArrayList<>();
+    private List<VenueName> mVenueNameSearch = new ArrayList<>();
 
 
-
-    public byte[] getUrlBytes(String urlSpec) throws IOException
-    {
+    public byte[] getUrlBytes(String urlSpec) throws IOException {
         URL url = new URL(urlSpec);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
@@ -52,75 +49,168 @@ public class Explore4Sqr {
 
             return out.toByteArray();
 
-        }
-        finally {
+        } finally {
             connection.disconnect();
         }
     }
 
 
-    public String getUrlString(String UrlSpec) throws IOException
-    {
+    public String getUrlString(String UrlSpec) throws IOException {
         return new String(getUrlBytes(UrlSpec));
     }
-    public List<VenueName> fetchItems(String ll) {
-        try{
+
+    public List<VenueName> getExploreResult(String ll, String section) {
+        try {
             String url = Uri.parse("https://api.foursquare.com/v2/venues/explore")
                     .buildUpon()
-                    .appendQueryParameter("client_id",CLIENT_ID)
-                    .appendQueryParameter("client_secret",CLIENT_SECRET)
-                    .appendQueryParameter("v","20180626")
-                    .appendQueryParameter("ll",ll)
-                    .appendQueryParameter("limit", String.valueOf(8))
+                    .appendQueryParameter("client_id", CLIENT_ID)
+                    .appendQueryParameter("client_secret", CLIENT_SECRET)
+                    .appendQueryParameter("v", "20180626")
+                    .appendQueryParameter("ll", ll)
+                    .appendQueryParameter("section", section)
+                    .appendQueryParameter("limit", String.valueOf(20))
                     .build().toString();
             String jsonString = getUrlString(url);
             JSONObject JsonBody = new JSONObject(jsonString);
             parseItems(JsonBody);
 
+        } catch (IOException ioe) {
+            Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (JSONException js) {
+            Log.e(TAG, "exception", js);
         }
-        catch(IOException ioe)
-        {
-            Log.e(TAG,"Failed to fetch items",ioe);
-        }
-        catch (JSONException js)
-        {
-            Log.e(TAG,"exception",js);
-        }
-        return mVenueName;
+        return mVenueNameExplore;
     }
 
-    public void parseItems( JSONObject jsonBody) throws IOException,JSONException
-    {
+    public List<VenueName> getSearchResult(String ll, String query) {
+        try {
+            String url = Uri.parse("https://api.foursquare.com/v2/venues/search")
+                    .buildUpon()
+                    .appendQueryParameter("client_id", CLIENT_ID)
+                    .appendQueryParameter("client_secret", CLIENT_SECRET)
+                    .appendQueryParameter("v", "20180626")
+                    .appendQueryParameter("ll", ll)
+                    .appendQueryParameter("query", query)
+                    .appendQueryParameter("limit", String.valueOf(20))
+                    .build().toString();
+            String jsonString = getUrlString(url);
+            JSONObject JsonBody = new JSONObject(jsonString);
+            parseSearchResponse(JsonBody);
+
+        } catch (IOException ioe) {
+            Log.e(TAG, "Failed to fetch items", ioe);
+        } catch (JSONException js) {
+            Log.e(TAG, "exception", js);
+        }
+        return mVenueNameSearch;
+    }
+
+    public void parseItems(JSONObject jsonBody) throws IOException, JSONException {
         JSONObject meta = jsonBody.getJSONObject("meta");
         String status = meta.getString("code");
         JSONObject mResponse = jsonBody.getJSONObject("response");
 
 
-        if(status.equals("200")) {
+        if (status.equals("200")) {
             JSONArray groupJsonArray = mResponse.getJSONArray("groups");
             JSONObject temp1 = groupJsonArray.getJSONObject(0);
             JSONArray items = temp1.getJSONArray("items");
 
-            for(int i=0;i<items.length();i++)
-            {
-               JSONObject singleItem = items.getJSONObject(i);
+            for (int i = 0; i < items.length(); i++) {
+                JSONObject singleItem = items.getJSONObject(i);
 
 
-               JSONObject venue =singleItem.getJSONObject("venue");
-               JSONObject location = venue.getJSONObject("location");
-               JSONArray category =venue.getJSONArray("categories");
+                JSONObject venue = singleItem.getJSONObject("venue");
+                JSONObject location = venue.getJSONObject("location");
+                JSONArray category = venue.getJSONArray("categories");
 
-               VenueName temp =new VenueName();
-                VenueDetail detail =new VenueDetail();
-               detail.setID(venue.getString("id"));
-               temp.setName(venue.getString("name"));
-               temp.setDistance(location.getInt("distance"));
-                detail.setCity(location.getString("city"));
-                detail.setState(location.getString("state"));
-                detail.setCountry(location.getString("country"));
-                detail.setCategory(category.getJSONObject(0).getString("name"));
+                VenueName temp = new VenueName();
+                VenueDetail detail = new VenueDetail();
+                detail.setID(venue.getString("id"));
+                temp.setName(venue.getString("name"));
+                if (location.has("distance")) {
+                    temp.setDistance(location.getInt("distance"));
+                } else {
+                    temp.setDistance(-1);
+
+                }
+                if (location.has("state")) {
+                    detail.setState(location.getString("state"));
+                } else {
+                    detail.setState("NA");
+                }
+                if (location.has("city")) {
+                    detail.setCity(location.getString("city"));
+                } else {
+                    detail.setCity("NA");
+                }
+
+                if (location.has("country")) {
+                    detail.setCountry(location.getString("country"));
+                } else {
+                    detail.setCountry("NA");
+                }
+
+                if (!category.isNull(0)) {
+                    detail.setCategory(category.getJSONObject(0).getString("name"));
+                } else {
+                    detail.setCategory("None");
+                }
                 temp.setmVenueDetails(detail);
-               mVenueName.add(temp);
+                mVenueNameExplore.add(temp);
+            }
+        }
+
+    }
+
+    public void parseSearchResponse(JSONObject jsonBody) throws IOException, JSONException {
+        JSONObject meta = jsonBody.getJSONObject("meta");
+        String status = meta.getString("code");
+        JSONObject mResponse = jsonBody.getJSONObject("response");
+
+
+        if (status.equals("200")) {
+
+            JSONArray venues = mResponse.getJSONArray("venues");
+
+            for (int i = 0; i < venues.length(); i++) {
+                JSONObject venue = venues.getJSONObject(i);
+                JSONObject location = venue.getJSONObject("location");
+                JSONArray category = venue.getJSONArray("categories");
+                VenueName temp = new VenueName();
+                VenueDetail detail = new VenueDetail();
+                detail.setID(venue.getString("id"));
+                temp.setName(venue.getString("name"));
+                if (location.has("distance")) {
+                    temp.setDistance(location.getInt("distance"));
+                } else {
+                    temp.setDistance(-1);
+
+                }
+                if (location.has("state")) {
+                    detail.setState(location.getString("state"));
+                } else {
+                    detail.setState("NA");
+                }
+                if (location.has("city")) {
+                    detail.setCity(location.getString("city"));
+                } else {
+                    detail.setCity("NA");
+                }
+
+                if (location.has("country")) {
+                    detail.setCountry(location.getString("country"));
+                } else {
+                    detail.setCountry("NA");
+                }
+
+                if (!category.isNull(0)) {
+                    detail.setCategory(category.getJSONObject(0).getString("name"));
+                } else {
+                    detail.setCategory("None");
+                }
+                temp.setmVenueDetails(detail);
+                mVenueNameSearch.add(temp);
             }
 
         }

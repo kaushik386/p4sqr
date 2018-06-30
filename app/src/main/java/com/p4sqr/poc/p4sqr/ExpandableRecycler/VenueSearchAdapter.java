@@ -13,7 +13,7 @@ import com.p4sqr.poc.p4sqr.R;
 
 import java.util.List;
 
-public class VenuePCAdapter extends RecyclerView.Adapter<VenuePCAdapter.MyHolder> {
+public class VenueSearchAdapter extends RecyclerView.Adapter<VenueSearchAdapter.MyHolder> {
 
 
     Context context;
@@ -25,7 +25,7 @@ public class VenuePCAdapter extends RecyclerView.Adapter<VenuePCAdapter.MyHolder
      notifyDataSetChanged();
     }
 
-    public VenuePCAdapter(Context context,List<VenueName> mVenueName) {
+    public VenueSearchAdapter(Context context, List<VenueName> mVenueName) {
         this.context = context;
         this.mVenueName = mVenueName;
     }
@@ -33,7 +33,7 @@ public class VenuePCAdapter extends RecyclerView.Adapter<VenuePCAdapter.MyHolder
     @NonNull
     @Override
     public MyHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.venue_layout,parent,false);
+        View view = LayoutInflater.from(context).inflate(R.layout.venue_search_layout,parent,false);
 
         return new MyHolder(view);
     }
@@ -70,20 +70,20 @@ public class VenuePCAdapter extends RecyclerView.Adapter<VenuePCAdapter.MyHolder
 
         public MyHolder(View itemView) {
             super(itemView);
-            mVenueTextView= itemView.findViewById(R.id.venue_name);
+            mVenueTextView= itemView.findViewById(R.id.svenue_name);
 //            mVenueDistanceTextView =itemView.findViewById(R.id.venue_distance);
-            linearLayout = itemView.findViewById(R.id.childlayout);
-            mVenueCategory = itemView.findViewById(R.id.venue_category);
-            mVenueCity = itemView.findViewById(R.id.city);
-            mVenueState = itemView.findViewById(R.id.state);
-            mVenueCountry = itemView.findViewById(R.id.country);
+            linearLayout = itemView.findViewById(R.id.schildlayout);
+            mVenueCategory = itemView.findViewById(R.id.svenue_category);
+            mVenueCity = itemView.findViewById(R.id.scity);
+            mVenueState = itemView.findViewById(R.id.sstate);
+            mVenueCountry = itemView.findViewById(R.id.scountry);
             mVenueTextView.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
-            if(v.getId()==R.id.venue_name)
+            if(v.getId()==R.id.svenue_name)
             {
                 if (linearLayout.getVisibility() == View.VISIBLE) {
                     linearLayout.setVisibility(View.GONE);

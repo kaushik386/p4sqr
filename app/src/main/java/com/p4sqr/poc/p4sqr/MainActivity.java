@@ -1,9 +1,13 @@
 package com.p4sqr.poc.p4sqr;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -14,16 +18,17 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.widget.Toast;
 
+import com.google.android.gms.location.LocationServices;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity implements ExploreFragment.OnLocationButtonListner,DialogLocationFragment.PassBackToMainActivity {
+public class MainActivity extends AppCompatActivity implements ExploreFragment.OnLocationButtonListner,DialogLocationFragment.PassBackToMainActivity,SearchFragment.OnLocationSearchButtonListner {
 
 
-    static final int PICK_LOCATION_REQUEST = 1;
     private static final int REQUEST_CODE = 1000;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -32,9 +37,24 @@ public class MainActivity extends AppCompatActivity implements ExploreFragment.O
     @BindView(R.id.viewpager)
      ViewPager viewPager;
     DialogFragment dialogFragment;
-    private GetPlacesRecommendation getPlacesRecommendation;
+    private ExploreFragment mExploreFragment;
+    private  SearchFragment mSearchFragment;
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode) {
+            case REQUEST_CODE: {
+                if (grantResults.length > 0) {
+                    if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    } else if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+                    }
+                }
+            }
+        }
+    }
 
 
     @Override
@@ -43,15 +63,20 @@ public class MainActivity extends AppCompatActivity implements ExploreFragment.O
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
-        setTitle("Hello StackOverflow");
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE);
+        }
+        setTitle("P4SQR");
         setupViewPager(viewPager);
         tabLayout.setupWithViewPager(viewPager);
 
     }
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
-        adapter.addFragment(new ExploreFragment(), "Explore");
-        adapter.addFragment(new SearchFragment(), "Search");
+        mExploreFragment= new ExploreFragment();
+        mSearchFragment = new SearchFragment();
+        adapter.addFragment(mExploreFragment, "Explore");
+        adapter.addFragment(mSearchFragment, "Search");
         viewPager.setAdapter(adapter);
     }
 
@@ -70,7 +95,15 @@ public class MainActivity extends AppCompatActivity implements ExploreFragment.O
 
     @Override
     public void SendBackData(String string) {
+        mSearchFragment.setLocation(string);
+        mExploreFragment.setLocation(string);
+
         Toast.makeText(this, string,Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void callLocationDialog4Search() {
+        callLocationDialog();
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
