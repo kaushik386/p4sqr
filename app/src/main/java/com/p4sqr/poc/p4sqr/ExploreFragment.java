@@ -142,7 +142,7 @@ public class ExploreFragment extends Fragment implements SectionAdapter.ClickEve
     {
         setSectionModel();
         mSectionAdapter=new SectionAdapter(getContext(),this,mSection);
-        mRVSection.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,true));
+        mRVSection.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL,false));
         mRVSection.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.HORIZONTAL));
         mRVSection.setAdapter(mSectionAdapter);
     }
