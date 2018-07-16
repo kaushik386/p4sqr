@@ -88,6 +88,7 @@ public class FetchPlaceInfo {
         String status = jsonBody.getString("status");
         locationModel = new LocationModel();
         if(status.equals("OK")) {
+
             JSONArray candidatesJsonArray = jsonBody.getJSONArray("candidates");
             JSONObject temp  = candidatesJsonArray.getJSONObject(0);
             locationModel.setPlace(temp.getString("name"));

@@ -6,10 +6,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.p4sqr.poc.p4sqr.Model.Category;
+import com.p4sqr.poc.p4sqr.Model.Venue;
 import com.p4sqr.poc.p4sqr.R;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -17,17 +21,17 @@ public class VenueSearchAdapter extends RecyclerView.Adapter<VenueSearchAdapter.
 
 
     Context context;
-    List<VenueName> mVenueName;
+    List<Venue> mVenues;
 
-    public void swap( List<VenueName> venueName)
+    public void swap( List<Venue> venueName)
     {
-     mVenueName = venueName;
-     notifyDataSetChanged();
+     mVenues = venueName;
+        notifyDataSetChanged();
     }
 
-    public VenueSearchAdapter(Context context, List<VenueName> mVenueName) {
+    public VenueSearchAdapter(Context context, List<Venue> mVenueName) {
         this.context = context;
-        this.mVenueName = mVenueName;
+        this.mVenues = mVenueName;
     }
 
     @NonNull
@@ -40,22 +44,25 @@ public class VenueSearchAdapter extends RecyclerView.Adapter<VenueSearchAdapter.
 
     @Override
     public void onBindViewHolder(@NonNull MyHolder holder, int position) {
-        holder.mVenueTextView.setText(mVenueName.get(position).getName());
-//        holder.mVenueDistanceTextView.setText(mVenueName.get(position).getDistance());
-        VenueDetail venueDetail = mVenueName.get(position).getChild();
-        holder.mVenueCategory.setText(venueDetail.getCategory());
-        holder.mVenueCity.setText(venueDetail.getCity());
-        holder.mVenueState.setText(venueDetail.getState());
-        holder.mVenueCountry.setText(venueDetail.getCountry());
-        holder.linearLayout.setVisibility(View.GONE);
 
+        Venue venue = mVenues.get(position);
+        String imageUrl = venue.getPrefix()+"1200x500"+venue.getSuffix();
+        holder.mVenueTextView.setText(venue.getName());
+//        holder.mVenueDistanceTextView.setText(mVenueName.get(position).getDistance());
+        Picasso.with(context).load(imageUrl).into(holder.imageSearch);
+        Category category= venue.getCategories().get(0);
+        holder.mVenueCategory.setText(category.getName());
+        holder.mVenueCity.setText(venue.getLocation().getCity());
+        holder.mVenueState.setText(venue.getLocation().getState());
+        holder.mVenueCountry.setText(venue.getLocation().getCountry());
+        holder.linearLayout.setVisibility(View.GONE);
 
 
     }
 
     @Override
     public int getItemCount() {
-        return mVenueName.size();
+        return mVenues.size();
     }
 
     public class MyHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -67,23 +74,25 @@ public class VenueSearchAdapter extends RecyclerView.Adapter<VenueSearchAdapter.
         private TextView mVenueState;
         private TextView mVenueCountry;
         private LinearLayout linearLayout;
+        ImageView imageSearch;
 
         public MyHolder(View itemView) {
             super(itemView);
+            imageSearch = itemView.findViewById(R.id.image_search);
             mVenueTextView= itemView.findViewById(R.id.svenue_name);
-//            mVenueDistanceTextView =itemView.findViewById(R.id.venue_distance);
             linearLayout = itemView.findViewById(R.id.schildlayout);
             mVenueCategory = itemView.findViewById(R.id.svenue_category);
             mVenueCity = itemView.findViewById(R.id.scity);
             mVenueState = itemView.findViewById(R.id.sstate);
             mVenueCountry = itemView.findViewById(R.id.scountry);
             mVenueTextView.setOnClickListener(this);
+            imageSearch.setOnClickListener(this);
 
         }
 
         @Override
         public void onClick(View v) {
-            if(v.getId()==R.id.svenue_name)
+            if(v.getId()==R.id.svenue_name||v.getId()==R.id.image_search)
             {
                 if (linearLayout.getVisibility() == View.VISIBLE) {
                     linearLayout.setVisibility(View.GONE);

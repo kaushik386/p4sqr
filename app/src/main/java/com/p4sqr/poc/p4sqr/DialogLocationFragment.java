@@ -3,6 +3,7 @@ package com.p4sqr.poc.p4sqr;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.AsyncTask;
@@ -38,6 +39,8 @@ public class DialogLocationFragment extends DialogFragment {
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private LocationModel mLocationModel;
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
